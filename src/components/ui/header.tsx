@@ -1,8 +1,15 @@
+"use client";
+
 import Image from "next/image"
 import Link from "next/link";
 
+import {toast} from "sonner";
+
+import {useAuthStore} from "@/store/authStore";
+import {Button} from "@/components/ui/button";
+
 export function Header() {
-    const isAuth = true;
+    const { isAuthenticated } = useAuthStore();
 
     return (
         <header className="p-6 border-b">
@@ -16,7 +23,7 @@ export function Header() {
                         priority
                     />
                 </Link>
-                {isAuth ?
+                {!isAuthenticated() ?
                     <ul>
                         <li><Link href="/">Главная</Link></li>
                         <li><Link href="/courses">Курсы</Link></li>
@@ -29,8 +36,17 @@ export function Header() {
                 }
             </div>
             <div>
-                <Link href="/login">Вход</Link>
-                <Link href="/register">Регистрация</Link>
+                {!isAuthenticated() ?
+                    <>
+                        <Link href="/login">Вход</Link>
+                        <Link href="/register">Регистрация</Link>
+                    </> :
+                    <Button className="bg-red-600 cursor-pointer"
+                        onClick={() => toast.success("la-la-la")}
+                    >
+                        Выйти
+                    </Button>
+                }
                 <Link href="/faq">FAQ</Link>
             </div>
         </header>

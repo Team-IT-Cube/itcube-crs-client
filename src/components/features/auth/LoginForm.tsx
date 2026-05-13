@@ -1,82 +1,154 @@
 "use client";
 
-import {Button} from "@/components/ui/button";
 import Link from "next/link";
-import {auth} from "@/lib/api";
-import {AuthData} from "@/interfaces/api";
-import {useState} from "react";
+import { useRouter } from "next/navigation";
 
-type Status = '' | 'Успешно' | 'Ошибка';
+import { useState } from "react";
+import { toast } from "sonner";
 
-export function LoginForm() {
+import { loginUser } from "@/lib/api";
+import { AuthData } from "@/interfaces/auth";
+import { useAuthStore } from "@/store/authStore";
+import { loginSchema } from "@/lib/validations";
+
+import { Button } from "@/components/ui/button";
+
+export default function LoginForm() {
+    const router = useRouter();
+    const { setAuth } = useAuthStore();
+
     const [data, setData] = useState<AuthData>({
         email: "",
         password: "",
     });
 
-    const [status, setStatus] = useState<Status>("");
+    const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+    const [globalError, setGlobalError] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setData(prev => ({ ...prev, [e.target.name]: e.target.value }));
-    }
+        // Убираем ошибку поля при изменении
+        setFieldErrors(prev => ({ ...prev, [e.target.name]: "" }));
+    };
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
-        setLoading(true);
+        setGlobalError(null);
+        setFieldErrors({});
 
-        const response = await auth(data);
-
-        if (response.status === 200) {
-            // token save in cookie
-            // setAuth store
-            // redirect
-            console.log(response);
-            setStatus('Успешно');
-            setLoading(false);
+        // Клиентская валидация через Zod
+        const result = loginSchema.safeParse(data);
+        if (!result.success) {
+            const errors: Record<string, string> = {};
+            result.error.issues.forEach(err => {
+                if (err.path[0]) errors[err.path[0] as string] = err.message;
+            });
+            setFieldErrors(errors);
             return;
         }
 
+        setLoading(true);
 
-        setStatus('Ошибка');
-        setLoading(false);
+        try {
+            const response = await loginUser(data);
+            setAuth(response.user, response.token);
+            toast.success(`Добро пожаловать, ${response.user.name}!`);
+            router.push("/profile");
+        } catch (err: any) {
+            if (err.errors) {
+                // 422 — ошибки полей
+                const errors: Record<string, string> = {};
+                Object.entries(err.errors).forEach(([key, val]) => {
+                    errors[key] = (val as string[])[0];
+                });
+                setFieldErrors(errors);
+            } else {
+                // 401 — общая ошибка
+                setGlobalError(err.message || "Неверный email или пароль");
+            }
+        } finally {
+            setLoading(false);
+        }
     }
+
     return (
-        <div className="max-w-xl mx-auto border rounded-lg p-6">
-            <h1 className="text-4xl font-extrabold mb-3">Авторизация</h1>
-            <form onSubmit={handleSubmit}>
-                <div className="mb-3">
-                    <label htmlFor="email">Почта</label>
+        <div className="max-w-md mx-auto border border-gray-100 rounded-xl p-8 shadow-sm">
+            <h1 className="text-2xl font-semibold mb-1">Вход</h1>
+            <p className="text-gray-500 text-sm mb-6">Введите данные для входа в систему</p>
+
+            {/* Общая ошибка */}
+            {globalError && (
+                <div className="bg-red-50 border border-red-100 text-red-600 text-sm rounded-lg px-4 py-3 mb-4">
+                    {globalError}
+                </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+
+                {/* Email */}
+                <div className="flex flex-col gap-1">
+                    <label htmlFor="email" className="text-sm font-medium text-gray-700">
+                        Почта
+                    </label>
                     <input
-                        className="w-full border h-11 rounded-xl p-3"
+                        className={`w-full h-11 border rounded-lg px-3 text-sm outline-none focus:ring-2 focus:ring-primary transition-colors ${
+                            fieldErrors.email
+                                ? "border-red-400 focus:ring-red-200"
+                                : "border-gray-200 focus:ring-gray-200"
+                        }`}
                         type="email"
                         id="email"
+                        name="email"
                         placeholder="example@mail.com"
                         onChange={handleChange}
-                        name="email"
                         value={data.email}
+                        disabled={loading}
                     />
-                    <span className="text-red-600">Ошибка</span>
+                    {fieldErrors.email && (
+                        <span className="text-red-500 text-xs">{fieldErrors.email}</span>
+                    )}
                 </div>
-                <div className="mb-3">
-                    <label htmlFor="password">Пароль</label>
+
+                {/* Пароль */}
+                <div className="flex flex-col gap-1">
+                    <label htmlFor="password" className="text-sm font-medium text-gray-700">
+                        Пароль
+                    </label>
                     <input
-                        className="w-full h-11 border rounded-xl p-3"
+                        className={`w-full h-11 border rounded-lg px-3 text-sm outline-none focus:ring-2 focus:ring-primary transition-colors ${
+                            fieldErrors.password
+                                ? "border-red-400 focus:ring-red-200"
+                                : "border-gray-200 focus:ring-gray-200"
+                        }`}
                         type="password"
                         id="password"
-                        placeholder="Пароль"
-                        onChange={handleChange}
                         name="password"
+                        placeholder="Введите пароль"
+                        onChange={handleChange}
                         value={data.password}
+                        disabled={loading}
                     />
-                    <span className="text-red-600">Ошибка</span>
+                    {fieldErrors.password && (
+                        <span className="text-red-500 text-xs">{fieldErrors.password}</span>
+                    )}
                 </div>
-                <Button className="cursor-pointer" type="submit">Войти</Button>
-                <Link href="/register" className="cursor-pointer mx-3">Регистрация</Link>
-                {status === "Успешно" && <span className="text-green-400">{status}</span>}
-                {status === "Ошибка" && <span className="text-red-600">{status}</span>}
-                {loading ? "Загрузка" : null}
+
+                <Button
+                    type="submit"
+                    className="w-full cursor-pointer"
+                    disabled={loading}
+                >
+                    {loading ? "Входим..." : "Войти"}
+                </Button>
+
+                <p className="text-center text-sm text-gray-500">
+                    Нет аккаунта?{" "}
+                    <Link href="/register" className="text-primary hover:underline font-medium">
+                        Зарегистрироваться
+                    </Link>
+                </p>
             </form>
         </div>
-    )
+    );
 }

@@ -1,54 +1,74 @@
-import axios from "axios";
-import {AuthData, RegisterData} from "@/interfaces/api";
+import axios, {AxiosError} from "axios";
 
-const server = "http://localhost:8000/api";
+import {ApiResponse} from "@/interfaces/api";
+import {AuthData, AuthUser, RegisterData} from "@/interfaces/auth";
 
-interface ResponseData {
-    data: any;
-    status: number;
-    statusText: string;
-}
 
-export async function auth(data: AuthData): Promise<ResponseData> {
+import {base_url} from "@/endpoints";
+
+const instance = axios.create({
+    baseURL: `${base_url}`,
+    headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+    },
+});
+
+export async function loginUser(data: AuthData): Promise<AuthUser> {
     try {
-        const response = await axios.post(`${server}/auth/login`, {
-            email: data.email,
-            password: data.password,
-        });
-
-        return {
-            data: response.data,
-            status: response.status,
-            statusText: response.statusText,
-        };
-    } catch(err) {
-        return {
-            data: err,
-            status: 500,
-            statusText: "Internal Server Error",
+        const response = await instance.post('/auth/login', data)
+        return response.data
+    } catch (err) {
+        if (err instanceof AxiosError) {
+            throw {
+                message: err.response?.data?.message || 'Неизвестная ошибка',
+                errors: err.response?.data?.errors,
+            }
         }
+        throw new Error('Неизвестная ошибка')
     }
 }
 
-export async function registration(data: RegisterData): Promise<ResponseData> {
+export async function registerUser(data: RegisterData): Promise<AuthUser> {
     try {
-        const response = await axios.post(`${server}/auth/register`, {
-            name: data.name,
-            email: data.email,
-            password: data.password,
-            password_confirmation: data.password_confirmation,
-        });
-
-        return {
-            data: response.data,
-            status: response.status,
-            statusText: response.statusText,
-        };
-    } catch(err) {
-        return {
-            data: err,
-            status: 500,
-            statusText: "Internal Server Error",
+        const response = await instance.post('/auth/register', data)
+        return response.data
+    } catch (err) {
+        if (err instanceof AxiosError) {
+            throw {
+                message: err.response?.data?.message || 'Неизвестная ошибка',
+                errors: err.response?.data?.errors,
+            }
         }
+        throw new Error('Неизвестная ошибка')
+    }
+}
+
+export async function logoutUser(token: string): Promise<void> {
+    await instance.get(`/auth/logout`, {
+        headers: { Authorization: `Bearer ${token}` }
+    })
+}
+
+export async function serverFetch<T>(url: string, options?: RequestInit): Promise<ApiResponse<T>> {
+    const response = await fetch(url, options);
+    const json = await response.json();
+
+    if (!response.ok) {
+        throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
+    } else if (response.status === 422) {
+        return {
+            data: null,
+            statusCode: response.status,
+            error: {
+                message: ``
+            }
+        }
+    }
+
+    return {
+        data: json,
+        statusCode: response.status,
+        error: null
     }
 }

@@ -1,11 +1,8 @@
-export interface AuthData {
-    email: string,
-    password: string
-}
-
-export interface RegisterData {
-    name: string,
-    email: string,
-    password: string,
-    password_confirmation: string
+export interface ApiResponse<T> {
+    data: T | null,
+    statusCode: number
+    error: {
+        message: string,
+        errors?: Record<string, string[]>
+    } | null,
 }

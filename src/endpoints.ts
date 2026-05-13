@@ -6,4 +6,5 @@ export const endpoint = {
     registration: `${base_url}/auth/register`,
     authorization: `${base_url}/auth/login`,
     logout: `${base_url}/auth/logout`,
+    courses: `${base_url}/courses`,
 };
