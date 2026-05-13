@@ -47,16 +47,13 @@ export default function LogoutButton() {
             <AlertDialogTrigger asChild>
                 <Button className="cursor-pointer">Выйти</Button>
             </AlertDialogTrigger>
-            <AlertDialogContent>
+            <AlertDialogContent size="sm">
                 <AlertDialogHeader>
                     <AlertDialogTitle>Ты уверен что хочешь выйти?</AlertDialogTitle>
                     <AlertDialogDescription></AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <AlertDialogCancel
-                        onClick={() => toast.success("Вы остались в системе")}>
-                        Нет
-                    </AlertDialogCancel>
+                    <AlertDialogCancel>Нет</AlertDialogCancel>
                     <AlertDialogAction onClick={logoutSubmit}>Да</AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>
