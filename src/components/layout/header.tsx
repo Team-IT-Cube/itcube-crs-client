@@ -8,7 +8,7 @@ import {toast} from "sonner";
 import {useAuthStore} from "@/store/authStore";
 import {Button} from "@/components/ui/button";
 
-export function Header() {
+export default function Header() {
     const { isAuthenticated } = useAuthStore();
 
     return (
