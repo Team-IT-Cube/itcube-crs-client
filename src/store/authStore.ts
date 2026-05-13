@@ -24,7 +24,7 @@ export const useAuthStore = create<AuthStore>()(
             token: null,
 
             setAuth: (user, token) => {
-                Cookies.set('token', token, { expires: 7 }) // хранится 7 дней
+                Cookies.set('token', token, { expires: 7, secure: true }) // хранится 7 дней
                 set({ user, token })
             },
 

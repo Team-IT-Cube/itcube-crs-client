@@ -21,16 +21,14 @@ export default function LogoutButton() {
     const { logout, token } = useAuthStore();
     async function logoutSubmit() {
         try {
-            const response = await serverFetch(endpoint.logout, {
+            await serverFetch(endpoint.logout, {
                 method: "POST",
                 headers: {
                     "Authorization": `Bearer ${token}`,
                 }
             });
 
-            if(response.error) {
-                logout();
-            }
+            logout();
         } catch (err) {
             console.error(err);
             const error = err as ApiResponse<null>;
