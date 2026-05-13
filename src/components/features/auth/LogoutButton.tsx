@@ -53,7 +53,10 @@ export default function LogoutButton() {
                     <AlertDialogDescription></AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <AlertDialogCancel>Нет</AlertDialogCancel>
+                    <AlertDialogCancel
+                        onClick={() => toast.success("Вы остались в системе")}>
+                        Нет
+                    </AlertDialogCancel>
                     <AlertDialogAction onClick={logoutSubmit}>Да</AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>
