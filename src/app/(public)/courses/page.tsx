@@ -3,12 +3,9 @@ import {serverFetch} from "@/lib/api";
 import {Course} from "@/interfaces/course";
 import {endpoint} from "@/endpoints";
 
-export const dynamic = 'force-dynamic';
-
 export default async function Courses() {
     const courses = await serverFetch<Course[]>(endpoint.courses, {
-        method: "GET",
-        cache: "no-store",
+        next: { revalidate: 120 },
         headers: {
             "Content-Type": "application/json",
             "Accept": "application/json",
