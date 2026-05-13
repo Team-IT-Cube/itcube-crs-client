@@ -12,6 +12,7 @@ import { useAuthStore } from "@/store/authStore";
 import { loginSchema } from "@/lib/validations";
 
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function LoginForm() {
     const router = useRouter();
@@ -139,7 +140,7 @@ export default function LoginForm() {
                     className="w-full cursor-pointer"
                     disabled={loading}
                 >
-                    {loading ? "Входим..." : "Войти"}
+                    {loading ? <> <Spinner /> Входим... </> : "Войти"}
                 </Button>
 
                 <p className="text-center text-sm text-gray-500">

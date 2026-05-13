@@ -15,6 +15,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema } from "@/lib/validations";
 
 import { Button } from "@/components/ui/button";
+import {Spinner} from "@/components/ui/spinner";
 
 export default function RegisterForm() {
     const router = useRouter();
@@ -178,7 +179,7 @@ export default function RegisterForm() {
                     className="w-full cursor-pointer"
                     disabled={isSubmitting}
                 >
-                    {isSubmitting ? "Регистрируемся..." : "Зарегистрироваться"}
+                    {isSubmitting ? <> <Spinner /> Регистрируемся... </> : "Зарегистрироваться"}
                 </Button>
 
                 <p className="text-center text-sm text-gray-500">

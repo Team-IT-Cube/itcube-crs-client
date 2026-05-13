@@ -3,8 +3,7 @@ import axios, {AxiosError} from "axios";
 import {ApiResponse} from "@/interfaces/api";
 import {AuthData, AuthUser, RegisterData} from "@/interfaces/auth";
 
-
-import {base_url} from "@/endpoints";
+import {base_url, endpoint} from "@/endpoints";
 
 const instance = axios.create({
     baseURL: `${base_url}`,
@@ -44,24 +43,28 @@ export async function registerUser(data: RegisterData): Promise<AuthUser> {
     }
 }
 
-export async function logoutUser(token: string): Promise<void> {
-    await instance.get(`/auth/logout`, {
-        headers: { Authorization: `Bearer ${token}` }
-    })
-}
+export async function serverFetch<T>(
+    url: string,
+    options?: RequestInit
+): Promise<ApiResponse<T>> {
+    const response = await fetch(url, {
 
-export async function serverFetch<T>(url: string, options?: RequestInit): Promise<ApiResponse<T>> {
-    const response = await fetch(url, options);
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            ...options?.headers
+        },
+        ...options
+    });
+
     const json = await response.json();
 
     if (!response.ok) {
-        throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
-    } else if (response.status === 422) {
         return {
             data: null,
             statusCode: response.status,
             error: {
-                message: ``
+                message: response.statusText,
             }
         }
     }
@@ -72,3 +75,15 @@ export async function serverFetch<T>(url: string, options?: RequestInit): Promis
         error: null
     }
 }
+
+export const loginUserFetch = (data: AuthData) =>
+    serverFetch<AuthUser>(endpoint.authorization, {
+        method: 'POST',
+        body: JSON.stringify(data),
+    });
+
+export const registerUserFetch = (data: RegisterData) =>
+    serverFetch<AuthUser>(endpoint.registration, {
+        method: 'POST',
+        body: JSON.stringify(data),
+    });

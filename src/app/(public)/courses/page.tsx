@@ -6,11 +6,7 @@ import {endpoint} from "@/endpoints";
 export default async function Courses() {
     const courses = await serverFetch<Course[]>(endpoint.courses, {
         next: { revalidate: 120 },
-        headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-        }
-    }).catch(() => console.error("Error fetching courses"));
+    }).catch((err) => { throw err });
 
     return (
         <main>
