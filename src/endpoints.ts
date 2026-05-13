@@ -7,4 +7,5 @@ export const endpoint = {
     authorization: `${base_url}/auth/login`,
     logout: `${base_url}/auth/logout`,
     courses: `${base_url}/courses`,
+    me: `${base_url}/auth/me`,
 };
