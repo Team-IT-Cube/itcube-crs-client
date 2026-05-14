@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { statusLabel, statusColor } from "@/components/features/dashboard/variables";
 import Cookie from "js-cookie";
 import { Enrollment } from "@/interfaces/enrollement";
+import Link from "next/link";
 
 export default function StudentCourse() {
     const [loading, setLoading] = useState(true);
@@ -39,9 +40,9 @@ export default function StudentCourse() {
         return (
             <div className="border border-gray-100 rounded-xl p-10 text-center">
                 <p className="text-gray-400 text-sm">Вы ещё не записаны ни на один курс</p>
-                <a href="/courses" className="inline-block mt-3 text-sm text-primary-400 hover:underline">
+                <Link href="/courses" className="inline-block mt-3 text-sm text-primary-400 hover:underline">
                     Перейти в каталог курсов
-                </a>
+                </Link>
             </div>
         )
     }

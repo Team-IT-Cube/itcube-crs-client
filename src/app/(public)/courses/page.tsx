@@ -1,4 +1,3 @@
-// app/courses/page.tsx
 import CourseCard from "@/components/features/course/CourseCard";
 import { serverFetch } from "@/lib/api";
 import { Course } from "@/interfaces/course";
@@ -6,7 +5,7 @@ import { endpoint } from "@/endpoints";
 
 export default async function Courses() {
     const courses = await serverFetch<Course[]>(endpoint.courses, {
-        next: { revalidate: 120 },
+        next: { revalidate: 60 },
     }).catch((err) => { throw err });
 
     return (

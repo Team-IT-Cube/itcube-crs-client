@@ -5,9 +5,11 @@ import DefaultDashboard from "@/components/features/dashboard/DefaultDashboard";
 import StudentDashboard from "@/components/features/dashboard/student/StudentDashboard";
 import TeacherDashboard from "@/components/features/dashboard/teacher/TeacherDashboard";
 
+type UserRole = "student" | "teacher" | "admin" | undefined;
+
 export default function UserDashboard() {
     const { user } = useAuthStore();
-    const role = user?.role;
+    const role: UserRole = user?.role;
 
     if(role === 'student') return <StudentDashboard />
     if(role === 'teacher') return <TeacherDashboard />
