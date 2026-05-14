@@ -56,7 +56,7 @@ export default function RegisterForm() {
     }
 
     return (
-        <div className="max-w-md mx-auto border border-gray-100 rounded-xl p-8 shadow-sm">
+        <div className="max-w-md mb-8 mx-auto border border-gray-100 rounded-xl p-8 shadow-sm">
             <h1 className="text-2xl font-semibold mb-1">Регистрация</h1>
             <p className="text-gray-500 text-sm mb-6">Создайте аккаунт чтобы записаться на курсы</p>
 
