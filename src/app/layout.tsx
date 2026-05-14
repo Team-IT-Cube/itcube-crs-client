@@ -4,6 +4,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import {Toaster} from "sonner";
 import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
 
 const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
@@ -37,6 +38,7 @@ export default function RootLayout({
         <div className="max-w-6xl mx-auto w-full mt-8">
           {children}
         </div>
+        <Footer />
         <Toaster />
       </body>
     </html>
