@@ -1,211 +1,191 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { Bar, Doughnut } from "react-chartjs-2";
 import {
     Chart as ChartJS,
-    ArcElement,
-    Tooltip,
-    Legend,
     CategoryScale,
     LinearScale,
     BarElement,
-    PointElement,
-    LineElement,
-    Filler,
+    ArcElement,
+    Tooltip,
+    Legend,
 } from "chart.js";
+import type { TooltipItem } from "chart.js";
+import type { Variants } from "framer-motion";
 
-import { Doughnut, Line, Bar } from "react-chartjs-2";
+ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend);
 
-ChartJS.register(
-    ArcElement,
-    Tooltip,
-    Legend,
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    PointElement,
-    LineElement,
-    Filler
-);
+// Моковые данные
+const myAttendance = [
+    { course: "Python", visited: 8, total: 10 },
+    { course: "Java", visited: 5, total: 8 },
+    { course: "VR/AR", visited: 6, total: 6 },
+];
+
+const myEnrollments = [
+    { name: "Подтверждена", value: 2, color: "#22C55E" },
+    { name: "Ожидает", value: 1, color: "#EAB308" },
+    { name: "Отклонена", value: 0, color: "#EF4444" },
+];
+
+const totalVisited = myAttendance.reduce((acc, c) => acc + c.visited, 0);
+const totalLessons = myAttendance.reduce((acc, c) => acc + c.total, 0);
+const avgPercent = Math.round((totalVisited / totalLessons) * 100);
+
+const cardVariants: Variants  = {
+    hidden: { opacity: 0, y: 16 },
+    visible: (i: number) => ({
+        opacity: 1,
+        y: 0,
+        transition: { delay: i * 0.1, duration: 0.3, ease: "easeOut" as const }
+    })
+}
 
 export default function StudentStatistic() {
-    // Пример данных
-    const attendance = 82;
+    const barData = {
+        labels: myAttendance.map(c => c.course),
+        datasets: [
+            {
+                label: "Посещаемость %",
+                data: myAttendance.map(c => Math.round((c.visited / c.total) * 100)),
+                backgroundColor: "#1D9E75",
+                borderRadius: 6,
+                borderSkipped: false,
+            }
+        ]
+    }
+
+    const barOptions = {
+        responsive: true,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                callbacks: {
+                    label: (ctx: TooltipItem<'bar'>) => {
+                        const item = myAttendance[ctx.dataIndex]
+                        return `${item.visited} из ${item.total} занятий (${ctx.raw}%)`
+                    }
+                }
+            }
+        },
+        scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 11 }, color: "#9CA3AF" } },
+            y: {
+                grid: { color: "#F3F4F6" },
+                ticks: { font: { size: 11 }, color: "#9CA3AF" },
+                max: 100,
+            }
+        }
+    }
 
     const doughnutData = {
-        labels: ["Посещено", "Пропущено"],
+        labels: myEnrollments.filter(e => e.value > 0).map(e => e.name),
         datasets: [
             {
-                data: [attendance, 100 - attendance],
-                backgroundColor: ["#3b82f6", "#e5e7eb"],
+                data: myEnrollments.filter(e => e.value > 0).map(e => e.value),
+                backgroundColor: myEnrollments.filter(e => e.value > 0).map(e => e.color),
                 borderWidth: 0,
-                cutout: "78%",
-            },
-        ],
-    };
+                hoverOffset: 4,
+            }
+        ]
+    }
 
-    const lineData = {
-        labels: ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб"],
-        datasets: [
-            {
-                label: "Активность",
-                data: [3, 5, 4, 7, 6, 8],
-                fill: true,
-                borderColor: "#3b82f6",
-                backgroundColor: "rgba(59,130,246,0.15)",
-                tension: 0.4,
+    const doughnutOptions = {
+        responsive: true,
+        cutout: "65%",
+        plugins: {
+            legend: {
+                position: "bottom" as const,
+                labels: { font: { size: 11 }, color: "#6B7280", boxWidth: 8, borderRadius: 4 }
             },
-        ],
-    };
-
-    const barData = {
-        labels: ["HTML", "CSS", "JS", "React", "Next.js"],
-        datasets: [
-            {
-                label: "Прогресс",
-                data: [95, 88, 72, 65, 40],
-                borderRadius: 12,
-                backgroundColor: "#3b82f6",
-            },
-        ],
-    };
+        }
+    }
 
     return (
-        <div className="grid gap-5 lg:grid-cols-3">
-            {/* Attendance Circle */}
+        <div className="space-y-4">
+
+            {/* Карточки */}
+            <div className="grid grid-cols-3 gap-4">
+                {[
+                    { label: "Посещено занятий", value: totalVisited, sub: `из ${totalLessons} всего` },
+                    {
+                        label: "Средняя посещаемость",
+                        value: `${avgPercent}%`,
+                        sub: "по всем курсам",
+                        color: avgPercent >= 80 ? "text-green-500" : avgPercent >= 60 ? "text-yellow-500" : "text-red-500"
+                    },
+                    { label: "Пропущено занятий", value: totalLessons - totalVisited, sub: "за всё время" },
+                ].map((card, i) => (
+                    <motion.div
+                        key={card.label}
+                        custom={i}
+                        variants={cardVariants}
+                        initial="hidden"
+                        animate="visible"
+                        className="border border-gray-100 rounded-xl p-5"
+                    >
+                        <p className="text-xs text-gray-400 mb-1">{card.label}</p>
+                        <p className={`text-3xl font-semibold ${card.color ?? 'text-gray-900'}`}>{card.value}</p>
+                        <p className="text-xs text-gray-400 mt-1">{card.sub}</p>
+                    </motion.div>
+                ))}
+            </div>
+
+            {/* Графики */}
+            <div className="grid grid-cols-2 gap-4">
+                <motion.div
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3, duration: 0.3 }}
+                    className="border border-gray-100 rounded-xl p-5"
+                >
+                    <p className="text-sm font-medium text-gray-900 mb-4">Моя посещаемость</p>
+                    <Bar data={barData} options={barOptions} />
+                </motion.div>
+
+                <motion.div
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4, duration: 0.3 }}
+                    className="border border-gray-100 rounded-xl p-5"
+                >
+                    <p className="text-sm font-medium text-gray-900 mb-4">Мои заявки</p>
+                    <Doughnut data={doughnutData} options={doughnutOptions} />
+                </motion.div>
+            </div>
+
+            {/* Детали посещаемости */}
             <motion.div
-                initial={{ opacity: 0, y: 15 }}
+                initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4 }}
-                className="relative overflow-hidden rounded-3xl border border-gray-100 bg-white p-6 shadow-sm"
+                transition={{ delay: 0.5, duration: 0.3 }}
+                className="border border-gray-100 rounded-xl p-5"
             >
-                <div className="mb-5">
-                    <p className="text-sm text-gray-400">
-                        Посещаемость
-                    </p>
-
-                    <h2 className="text-xl font-semibold text-gray-900">
-                        Общая статистика
-                    </h2>
-                </div>
-
-                <div className="relative mx-auto h-[220px] w-[220px]">
-                    <Doughnut
-                        data={doughnutData}
-                        options={{
-                            plugins: {
-                                legend: {
-                                    display: false,
-                                },
-                            },
-                            maintainAspectRatio: false,
-                        }}
-                    />
-
-                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        <span className="text-4xl font-bold text-gray-900">
-                            {attendance}%
-                        </span>
-
-                        <span className="text-sm text-gray-400">
-                            посещено
-                        </span>
-                    </div>
+                <p className="text-sm font-medium text-gray-900 mb-4">Детали посещаемости</p>
+                <div className="space-y-4">
+                    {myAttendance.map((item, i) => {
+                        const percent = Math.round((item.visited / item.total) * 100)
+                        return (
+                            <div key={item.course}>
+                                <div className="flex justify-between mb-1">
+                                    <span className="text-xs text-gray-500">{item.course}</span>
+                                    <span className="text-xs text-gray-400">{item.visited} из {item.total} занятий</span>
+                                </div>
+                                <div className="w-full bg-gray-100 rounded-full h-1.5">
+                                    <motion.div
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${percent}%` }}
+                                        transition={{ delay: 0.6 + i * 0.1, duration: 0.5, ease: "easeOut" }}
+                                        className={`h-1.5 rounded-full ${percent >= 80 ? 'bg-green-500' : percent >= 60 ? 'bg-yellow-500' : 'bg-red-500'}`}
+                                    />
+                                </div>
+                            </div>
+                        )
+                    })}
                 </div>
             </motion.div>
 
-            {/* Activity Graph */}
-            <motion.div
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm lg:col-span-2"
-            >
-                <div className="mb-5">
-                    <p className="text-sm text-gray-400">
-                        Активность
-                    </p>
-
-                    <h2 className="text-xl font-semibold text-gray-900">
-                        Посещение занятий
-                    </h2>
-                </div>
-
-                <div className="h-[250px]">
-                    <Line
-                        data={lineData}
-                        options={{
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                                legend: {
-                                    display: false,
-                                },
-                            },
-                            scales: {
-                                x: {
-                                    grid: {
-                                        display: false,
-                                    },
-                                },
-                                y: {
-                                    beginAtZero: true,
-                                    grid: {
-                                        color: "#f3f4f6",
-                                    },
-                                },
-                            },
-                        }}
-                    />
-                </div>
-            </motion.div>
-
-            {/* Course Progress */}
-            <motion.div
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-                className="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm lg:col-span-3"
-            >
-                <div className="mb-5">
-                    <p className="text-sm text-gray-400">
-                        Прогресс по темам
-                    </p>
-
-                    <h2 className="text-xl font-semibold text-gray-900">
-                        Освоение курса
-                    </h2>
-                </div>
-
-                <div className="h-[320px]">
-                    <Bar
-                        data={barData}
-                        options={{
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                                legend: {
-                                    display: false,
-                                },
-                            },
-                            scales: {
-                                x: {
-                                    grid: {
-                                        display: false,
-                                    },
-                                },
-                                y: {
-                                    beginAtZero: true,
-                                    max: 100,
-                                    grid: {
-                                        color: "#f3f4f6",
-                                    },
-                                },
-                            },
-                        }}
-                    />
-                </div>
-            </motion.div>
         </div>
     );
 }
