@@ -1,13 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import Cookies from "js-cookie";
-
-interface User {
-    id: number
-    name: string
-    email: string
-    role: 'student' | 'teacher' | 'admin'
-}
+import {User} from "@/interfaces/user";
 
 interface AuthStore {
     user: User | null

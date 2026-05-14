@@ -8,4 +8,5 @@ export const endpoint = {
     logout: `${base_url}/auth/logout`,
     courses: `${base_url}/courses`,
     me: `${base_url}/auth/me`,
+    myEnrollments: `${base_url}/enrollments/my`,
 };
