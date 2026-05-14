@@ -48,7 +48,6 @@ export async function serverFetch<T>(
     options?: RequestInit
 ): Promise<ApiResponse<T>> {
     const response = await fetch(url, {
-
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
