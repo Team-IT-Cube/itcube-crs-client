@@ -1,6 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import StudentCourse from "@/components/features/dashboard/student/StudentCourse";
-import StudentStatistic from "@/components/features/dashboard/student/StudentStatistic";
 import StudentProfile from "@/components/features/dashboard/student/StudentProfile";
 import {tabs} from "@/components/features/dashboard/variables";
 
@@ -18,11 +17,6 @@ export default function StudentDashboard() {
                 {/* Профиль */}
                 <TabsContent value="overview" className="animate-fade-in-up mt-6">
                     <StudentProfile />
-                </TabsContent>
-
-                {/* Аналитика */}
-                <TabsContent value="analytics" className="animate-fade-in-up mt-6">
-                    <StudentStatistic/>
                 </TabsContent>
 
                 {/* Мои курсы */}

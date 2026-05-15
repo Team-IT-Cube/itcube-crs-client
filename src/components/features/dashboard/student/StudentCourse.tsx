@@ -7,8 +7,9 @@ import { endpoint } from "@/endpoints";
 import { toast } from "sonner";
 import { statusLabel, statusColor } from "@/components/features/dashboard/variables";
 import Cookie from "js-cookie";
-import { Enrollment } from "@/interfaces/enrollement";
+import { Enrollment } from "../../../../interfaces/enrollment";
 import Link from "next/link";
+import StudentStatistic from "@/components/features/dashboard/student/StudentStatistic";
 
 export default function StudentCourse() {
     const [loading, setLoading] = useState(true);
@@ -31,6 +32,7 @@ export default function StudentCourse() {
     }
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchEnrollments();
     }, []);
 
@@ -63,10 +65,11 @@ export default function StudentCourse() {
                             {enrollment.course.schedule}
                         </p>
                         <p className="text-xs text-gray-400">
-                            Записан: {new Date(enrollment.enrolled_at).toLocaleDateString('ru-RU')}
+                            Записан: {new Date(enrollment.created_at).toLocaleDateString('ru-RU')}
                         </p>
                     </div>
 
+                    <StudentStatistic key={enrollment.id} id={enrollment.id} />
                     {/* Правая часть — статус */}
                     <span className={`shrink-0 text-xs px-3 py-1 rounded-full border font-medium ${statusColor[enrollment.status]}`}>
                         {statusLabel[enrollment.status]}

@@ -13,6 +13,12 @@ import {
 } from "chart.js";
 import type { TooltipItem } from "chart.js";
 import type { Variants } from "framer-motion";
+import {useCallback, useEffect, useState} from "react";
+import {endpoint} from "@/endpoints";
+import Cookie from "js-cookie";
+import DashboardSkeleton from "@/components/layout/DashboardSkeleton";
+import {Skeleton} from "@/components/ui/skeleton";
+import {arrayOutputType} from "zod/v3";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend);
 
@@ -42,7 +48,51 @@ const cardVariants: Variants  = {
     })
 }
 
-export default function StudentStatistic() {
+interface StatProps { id: number }
+interface DataStats {
+    stats: {
+        total: number
+        present: number
+        percentage: number
+    }
+}
+
+export default function StudentStatistic({ id }: StatProps) {
+    const [loading, setLoading] = useState(false);
+    const [data, setData] = useState<DataStats>({
+        stats: {
+            total: 0,
+            present: 0,
+            percentage: 0,
+        }
+    });
+
+    const fetchData = useCallback(async () => {
+        try {
+            setLoading(true);
+
+            const response = await fetch(`${endpoint.attendance}/${id}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${Cookie.get("token")}`,
+                }
+            })
+            const json = await response.json();
+            console.log(json)
+            setData(json ?? []);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    }, [id])
+
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        fetchData();
+    }, [fetchData])
+
     const barData = {
         labels: myAttendance.map(c => c.course),
         datasets: [
@@ -102,20 +152,35 @@ export default function StudentStatistic() {
         }
     }
 
+    if (loading) return (
+            <div className="grid grid-cols-2 gap-4">
+                <div className="border border-gray-100 rounded-xl p-5 space-y-3">
+                    <Skeleton className="w-24 h-3" />
+                    <Skeleton className="w-16 h-7" />
+                    <Skeleton className="w-32 h-3" />
+                </div>
+                <div className="border border-gray-100 rounded-xl p-5 space-y-3">
+                    <Skeleton className="w-24 h-3" />
+                    <Skeleton className="w-16 h-7" />
+                    <Skeleton className="w-32 h-3" />
+                </div>
+            </div>
+        );
+
     return (
         <div className="space-y-4">
 
             {/* Карточки */}
             <div className="grid grid-cols-3 gap-4">
                 {[
-                    { label: "Посещено занятий", value: totalVisited, sub: `из ${totalLessons} всего` },
+                    { label: "Посещено занятий", value: data.stats?.present , sub: `из ${data.stats.total} всего` },
                     {
                         label: "Средняя посещаемость",
-                        value: `${avgPercent}%`,
+                        value: `${data?.stats?.percentage}%`,
                         sub: "по всем курсам",
-                        color: avgPercent >= 80 ? "text-green-500" : avgPercent >= 60 ? "text-yellow-500" : "text-red-500"
+                        color: data?.stats?.percentage >= 80 ? "text-green-500" : data?.stats?.percentage >= 60 ? "text-yellow-500" : "text-red-500"
                     },
-                    { label: "Пропущено занятий", value: totalLessons - totalVisited, sub: "за всё время" },
+                    { label: "Пропущено занятий", value: data.stats.total - data.stats.present, sub: "за всё время" },
                 ].map((card, i) => (
                     <motion.div
                         key={card.label}
@@ -133,30 +198,30 @@ export default function StudentStatistic() {
             </div>
 
             {/* Графики */}
-            <div className="grid grid-cols-2 gap-4">
-                <motion.div
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3, duration: 0.3 }}
-                    className="border border-gray-100 rounded-xl p-5"
-                >
-                    <p className="text-sm font-medium text-gray-900 mb-4">Моя посещаемость</p>
-                    <Bar data={barData} options={barOptions} />
-                </motion.div>
+            {/*<div className="grid grid-cols-2 gap-4">*/}
+            {/*    <motion.div*/}
+            {/*        initial={{ opacity: 0, y: 16 }}*/}
+            {/*        animate={{ opacity: 1, y: 0 }}*/}
+            {/*        transition={{ delay: 0.3, duration: 0.3 }}*/}
+            {/*        className="border border-gray-100 rounded-xl p-5"*/}
+            {/*    >*/}
+            {/*        <p className="text-sm font-medium text-gray-900 mb-4">Моя посещаемость</p>*/}
+            {/*        <Bar data={barData} options={barOptions} />*/}
+            {/*    </motion.div>*/}
 
-                <motion.div
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4, duration: 0.3 }}
-                    className="border border-gray-100 rounded-xl p-5"
-                >
-                    <p className="text-sm font-medium text-gray-900 mb-4">Мои заявки</p>
-                    <Doughnut data={doughnutData} options={doughnutOptions} />
-                </motion.div>
-            </div>
+            {/*    <motion.div*/}
+            {/*        initial={{ opacity: 0, y: 16 }}*/}
+            {/*        animate={{ opacity: 1, y: 0 }}*/}
+            {/*        transition={{ delay: 0.4, duration: 0.3 }}*/}
+            {/*        className="border border-gray-100 rounded-xl p-5"*/}
+            {/*    >*/}
+            {/*        <p className="text-sm font-medium text-gray-900 mb-4">Мои заявки</p>*/}
+            {/*        <Doughnut data={doughnutData} options={doughnutOptions} />*/}
+            {/*    </motion.div>*/}
+            {/*</div>*/}
 
             {/* Детали посещаемости */}
-            <motion.div
+            {/*<motion.div
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5, duration: 0.3 }}
@@ -184,7 +249,7 @@ export default function StudentStatistic() {
                         )
                     })}
                 </div>
-            </motion.div>
+            </motion.div>*/}
 
         </div>
     );
