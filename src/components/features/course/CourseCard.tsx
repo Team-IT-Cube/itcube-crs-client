@@ -1,5 +1,11 @@
-// components/features/course/CourseCard.tsx
+"use client";
+
 import { Course } from "@/interfaces/course";
+import { useAuthStore } from "@/store/authStore";
+import { endpoint } from "@/endpoints";
+import { toast } from "sonner";
+import { useState } from "react";
+import { Loader2, Clock, Users, GraduationCap } from "lucide-react";
 
 const directionLabel: Record<string, string> = {
     python: "Python",
@@ -19,15 +25,81 @@ const directionColor: Record<string, string> = {
     bigdata: "bg-yellow-50 text-yellow-600 border-yellow-100",
 }
 
-interface CourseCardProps {
-    course: Course
+const statusLabel: Record<string, string> = {
+    pending: "Заявка ожидает",
+    confirmed: "Вы записаны",
+    rejected: "Заявка отклонена",
 }
 
-export default function CourseCard({ course }: CourseCardProps) {
-    return (
-        <div className="border border-gray-100 rounded-xl p-5 hover:border-gray-200 hover:shadow-sm transition-all flex flex-col gap-4">
+const statusColor: Record<string, string> = {
+    pending: "bg-yellow-50 text-yellow-600 border border-yellow-200",
+    confirmed: "bg-green-50 text-green-600 border border-green-200",
+    rejected: "bg-red-50 text-red-500 border border-red-200",
+}
 
-            {/* Шапка карточки */}
+import { Enrollment } from "@/interfaces/enrollment";
+
+interface CourseCardProps {
+    course: Course
+    enrollment?: Enrollment
+    onEnroll: (enrollment: Enrollment) => void
+    fetching: boolean
+}
+
+export default function CourseCard({ course, enrollment, onEnroll, fetching }: CourseCardProps) {
+    const { token, isAuthenticated } = useAuthStore();
+    const [loading, setLoading] = useState(false);
+
+    const handleEnroll = async () => {
+        if (!isAuthenticated()) {
+            toast.warning('Для записи авторизуйтесь в систему!', { position: "top-center" });
+            window.location.href = '/login';
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const response = await fetch(endpoint.enrollments, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({ course_id: course.id })
+            });
+
+            const json = await response.json();
+
+            if (response.status === 201) {
+                toast.success("Заявка успешно подана! Ожидайте подтверждение");
+                onEnroll(json.data ?? json);
+                return;
+            }
+
+            if (response.status === 422) {
+                toast.warning(json.message || 'Вы уже записаны на этот курс');
+                return;
+            }
+
+            if (response.status === 401) {
+                toast.warning('Авторизуйтесь чтобы записаться');
+                return;
+            }
+
+            toast.error(json.message || 'Ошибка при записи на курс');
+        } catch {
+            toast.error("Неизвестная ошибка");
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    return (
+        <div className={`border rounded-xl p-5 flex flex-col gap-4 transition-all ${enrollment ? 'border-gray-100 bg-gray-50' : 'border-gray-100 hover:border-gray-200 hover:shadow-sm'}`}>
+
+            {/* Шапка */}
             <div className="flex items-start justify-between gap-3">
                 <h3 className="font-medium text-gray-900 text-sm leading-snug">{course.title}</h3>
                 <span className={`shrink-0 text-xs px-2.5 py-1 rounded-full border font-medium ${directionColor[course.direction] ?? 'bg-gray-50 text-gray-600 border-gray-100'}`}>
@@ -38,29 +110,41 @@ export default function CourseCard({ course }: CourseCardProps) {
             {/* Детали */}
             <div className="space-y-2">
                 <div className="flex items-center gap-2 text-xs text-gray-400">
-                    <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
+                    <GraduationCap className="w-3.5 h-3.5 shrink-0" />
                     {course.teacher.name}
                 </div>
                 <div className="flex items-center gap-2 text-xs text-gray-400">
-                    <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                    <Clock className="w-3.5 h-3.5 shrink-0" />
                     {course.schedule}
                 </div>
                 <div className="flex items-center gap-2 text-xs text-gray-400">
-                    <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    {course.max_slots} мест
+                    <Users className="w-3.5 h-3.5 shrink-0" />
+                    <span className={course.free_slots <= 0 ? 'text-red-400' : ''}>
+                        {course.free_slots} из {course.max_slots} мест свободно
+                    </span>
                 </div>
             </div>
 
-            {/* Кнопка */}
-            <button className="w-full mt-auto py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors cursor-pointer">
-                Записаться
-            </button>
+            {/* Кнопка или статус */}
+            {fetching ?
+                <div className="w-full h-9 bg-gray-100 rounded-lg animate-pulse" />
+                : enrollment ? (
+                <div className={`w-full py-2 text-xs font-medium text-center rounded-lg ${statusColor[enrollment.status]}`}>
+                    {statusLabel[enrollment.status]}
+                </div>
+            ) : course.free_slots <= 0 ? (
+                    <div className="w-full py-2 text-xs font-medium text-center rounded-lg bg-gray-50 text-gray-400 border border-gray-200">
+                        Мест нет
+                    </div> ) : (
+                <button
+                    onClick={handleEnroll}
+                    disabled={loading}
+                    className="w-full mt-auto py-2 text-sm font-medium text-white bg-black rounded-lg hover:bg-gray-700 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                    {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                    {loading ? "Отправка..." : "Записаться"}
+                </button>
+            )}
 
         </div>
     )

@@ -1,7 +1,7 @@
-import CourseCard from "@/components/features/course/CourseCard";
 import { serverFetch } from "@/lib/api";
 import { Course } from "@/interfaces/course";
 import { endpoint } from "@/endpoints";
+import CourseList from "@/components/features/course/CourseList";
 
 export default async function Courses() {
     const courses = await serverFetch<Course[]>(endpoint.courses, {
@@ -19,11 +19,7 @@ export default async function Courses() {
 
             {/* Сетка карточек */}
             {courses?.data && courses.data.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {courses.data.map((course: Course) => (
-                        <CourseCard key={course.id} course={course} />
-                    ))}
-                </div>
+                <CourseList courses={courses.data} />
             ) : (
                 <div className="text-center py-20 text-gray-400 text-sm">
                     Курсы пока не добавлены
