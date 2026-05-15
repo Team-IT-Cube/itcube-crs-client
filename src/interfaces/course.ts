@@ -8,6 +8,7 @@ export interface Course {
     status: string,
     created_at: string,
     updated_at: string,
+    free_slots: number,
     teacher: {
         id: number,
         name: string

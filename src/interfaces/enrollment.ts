@@ -1,7 +1,13 @@
 export interface Enrollment {
     id: number
     status: 'pending' | 'confirmed' | 'rejected'
-    enrolled_at: string
+    course_id: number
+    created_at: string
+    user?: {
+        id: number
+        name: string
+        email: string
+    }
     course: {
         id: number
         title: string
