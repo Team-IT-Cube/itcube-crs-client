@@ -3,7 +3,6 @@ import {UserRoleColor, UserLabel} from "@/interfaces/user";
 
 export const tabs: TabsDashboard[] = [
     { id: 1, label: "Профиль", value: "overview" },
-    { id: 2, label: "Аналитика", value: "analytics" },
     { id: 3, label: "Мои курсы", value: "courses" },
 ];
 
