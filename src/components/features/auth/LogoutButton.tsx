@@ -16,9 +16,12 @@ import {endpoint} from "@/endpoints";
 import {useAuthStore} from "@/store/authStore";
 import {toast} from "sonner";
 import {ApiResponse} from "@/interfaces/api";
+import {useRouter} from "next/navigation";
 
 export default function LogoutButton() {
     const { logout, token } = useAuthStore();
+    const router = useRouter();
+
     async function logoutSubmit() {
         try {
             await serverFetch(endpoint.logout, {
@@ -29,6 +32,7 @@ export default function LogoutButton() {
             });
 
             logout();
+            router.push("/login");
         } catch (err) {
             console.error(err);
             const error = err as ApiResponse<null>;
