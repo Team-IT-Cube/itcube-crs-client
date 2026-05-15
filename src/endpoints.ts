@@ -10,4 +10,5 @@ export const endpoint = {
     me: `${base_url}/auth/me`,
     myEnrollments: `${base_url}/enrollments/my`,
     enrollments: `${base_url}/enrollments`,
+    attendance: `${base_url}/attendance`,
 };
