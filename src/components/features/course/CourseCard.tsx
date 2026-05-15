@@ -38,6 +38,7 @@ const statusColor: Record<string, string> = {
 }
 
 import { Enrollment } from "@/interfaces/enrollment";
+import {useRouter} from "next/navigation";
 
 interface CourseCardProps {
     course: Course
@@ -49,11 +50,12 @@ interface CourseCardProps {
 export default function CourseCard({ course, enrollment, onEnroll, fetching }: CourseCardProps) {
     const { token, isAuthenticated } = useAuthStore();
     const [loading, setLoading] = useState(false);
+    const router = useRouter();
 
     const handleEnroll = async () => {
         if (!isAuthenticated()) {
             toast.warning('Для записи авторизуйтесь в систему!', { position: "top-center" });
-            window.location.href = '/login';
+            router.push('/login');
             return;
         }
 
