@@ -8,7 +8,7 @@ import { statusLabel, statusColor } from "@/components/features/dashboard/variab
 import Cookie from "js-cookie";
 import { Enrollment } from "@/interfaces/enrollment";
 import Link from "next/link";
-import {BookOpen, Clock, CalendarDays, ChevronRight, Loader2} from "lucide-react";
+import {BookOpen, Clock, CalendarDays, ChevronRight} from "lucide-react";
 import {Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle} from "@/components/ui/dialog";
 import {Button} from "@/components/ui/button";
 import StudentStatistic from "@/components/features/dashboard/student/StudentStatistic";
@@ -16,6 +16,7 @@ import StudentStatistic from "@/components/features/dashboard/student/StudentSta
 export default function StudentCourse() {
     const [loading, setLoading] = useState(true);
     const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
+    const [selectedEnrollment, setSelectedEnrollment] = useState<Enrollment | null>(null);
 
     const fetchEnrollments = useCallback(async () => {
         try {
@@ -72,7 +73,7 @@ export default function StudentCourse() {
                         Активные курсы — {confirmed.length}
                     </p>
                     {confirmed.map((enrollment) => (
-                        <EnrollmentCard key={enrollment.id} enrollment={enrollment} />
+                        <EnrollmentCard key={enrollment.id} enrollment={enrollment} selected={() => setSelectedEnrollment(enrollment)} />
                     ))}
                 </div>
             )}
@@ -88,7 +89,7 @@ export default function StudentCourse() {
             )}
             {rejected.length > 0 && (
                 <div className="space-y-2">
-                    <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">
+                    <p className="text-xs fon t-medium text-gray-400 uppercase tracking-wide">
                         Отклонённые — {rejected.length}
                     </p>
                     {rejected.map((enrollment) => (
@@ -96,22 +97,33 @@ export default function StudentCourse() {
                     ))}
                 </div>
             )}
+
+            {selectedEnrollment && (
+            <Dialog open={!!selectedEnrollment} onOpenChange={() => setSelectedEnrollment(null)}>
+                <DialogContent className="max-w-sm">
+                    <DialogHeader>
+                        <DialogTitle>Статистика</DialogTitle>
+                        <DialogDescription></DialogDescription>
+                    </DialogHeader>
+                    {selectedEnrollment
+                        ? <StudentStatistic id={selectedEnrollment.id} />
+                        : <p>Ошибка получения данных!</p>
+                    }
+                    <div className="flex gap-2 pt-2">
+                        <Button className="w-full" onClick={() => setSelectedEnrollment(null)}>
+                            Закрыть
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog> )}
         </div>
     )
 }
 
-function EnrollmentCard({ enrollment }: { enrollment: Enrollment }) {
-    const [open, setOpen] = useState<boolean>(false);
-
-    const onClose = () => {
-        if(enrollment.status === 'confirmed') {
-            setOpen(!open);
-        }
-        return;
-    }
-
+function EnrollmentCard({ enrollment, selected  }: { enrollment: Enrollment, selected?: () => void }) {
     return (
-        <div onClick={onClose} className={`border rounded-xl p-5 flex items-center justify-between gap-4 transition-all ${
+        <div onClick={selected} className={`${enrollment.status === 'confirmed' ? 'cursor-pointer' : 'cursor-not-allowed'} 
+        border rounded-xl p-5 flex items-center justify-between gap-4 transition-all ${
             enrollment.status === 'rejected'
                 ? 'border-gray-100 opacity-50'
                 : 'border-gray-100 hover:border-gray-200 hover:shadow-sm'
@@ -139,20 +151,6 @@ function EnrollmentCard({ enrollment }: { enrollment: Enrollment }) {
             <span className={`shrink-0 text-xs px-3 py-1 rounded-full border font-medium ${statusColor[enrollment.status]}`}>
                 {statusLabel[enrollment.status]}
             </span>
-
-            {open && <Dialog open={open} onOpenChange={onClose}>
-                <DialogContent className="max-w-sm">
-                    <DialogHeader>
-                        <DialogTitle>Статистика</DialogTitle>
-                        <DialogDescription>
-                        </DialogDescription>
-                    </DialogHeader>
-                    <StudentStatistic id={enrollment.id} />
-                    <div className="flex gap-2 pt-2">
-                        <Button className="w-full" onClick={onClose}>Закрыть</Button>
-                    </div>
-                </DialogContent>
-            </Dialog>}
         </div>
     )
 }
