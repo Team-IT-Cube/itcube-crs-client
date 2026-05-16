@@ -17,6 +17,7 @@ import {useAuthStore} from "@/store/authStore";
 import {toast} from "sonner";
 import {ApiResponse} from "@/interfaces/api";
 import {useRouter} from "next/navigation";
+import {LogOut} from "lucide-react";
 
 export default function LogoutButton() {
     const { logout, token } = useAuthStore();
@@ -47,7 +48,7 @@ export default function LogoutButton() {
     return (
         <AlertDialog>
             <AlertDialogTrigger asChild>
-                <Button className="cursor-pointer">Выйти</Button>
+                <Button className="cursor-pointer"><LogOut />Выйти</Button>
             </AlertDialogTrigger>
             <AlertDialogContent size="sm">
                 <AlertDialogHeader>
