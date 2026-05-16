@@ -10,7 +10,7 @@ import TeacherCourseStudents from "./TeacherCourseStudents";
 import DashboardSkeleton from "@/components/layout/DashboardSkeleton";
 
 export default function TeacherDashboard() {
-    const { token } = useAuthStore();
+    const { token, user } = useAuthStore();
     const [courses, setCourses] = useState<Course[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
@@ -24,15 +24,21 @@ export default function TeacherDashboard() {
                 }
             });
             const json = await response.json();
-            setCourses(Array.isArray(json) ? json : (json.data ?? []));
+
+            const data: Course[] = Array.isArray(json)
+                ? json.filter((course: Course) => course.teacher_id === user?.id)
+                : (json.data ?? []);
+            console.log(data);
+            setCourses(data);
         } catch {
             toast.error("Ошибка загрузки курсов");
         } finally {
             setLoading(false);
         }
-    }, [token])
+    }, [token, user?.id])
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchCourses();
     }, [fetchCourses])
 

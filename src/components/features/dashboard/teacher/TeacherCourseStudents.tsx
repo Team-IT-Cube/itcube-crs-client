@@ -39,6 +39,7 @@ export default function TeacherCourseStudents({ course, onBack }: TeacherCourseS
     }, [token, course.id])
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchEnrollments();
     }, [fetchEnrollments])
 
