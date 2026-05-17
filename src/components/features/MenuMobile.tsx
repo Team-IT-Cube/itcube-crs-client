@@ -8,8 +8,6 @@ import {
     Home, KeyRound,
     LogIn,
     MenuIcon,
-    Minus,
-    Plus,
     UserLock
 } from "lucide-react"
 
@@ -36,7 +34,7 @@ export default function MenuMobile() {
     return (
         <Drawer>
             <DrawerTrigger asChild>
-                <MenuIcon className="h-7 w-7" />
+                <MenuIcon className="h-7 w-7 sm:hidden block" />
             </DrawerTrigger>
             <DrawerContent>
                 <div className="mx-auto w-full max-w-sm">
