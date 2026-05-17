@@ -171,16 +171,17 @@ export default function StudentStatistic({ id }: StatProps) {
         <div className="space-y-4">
 
             {/* Карточки */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 gap-4">
                 {[
-                    { label: "Посещено занятий", value: data.stats?.present , sub: `из ${data.stats.total} всего` },
                     {
                         label: "Средняя посещаемость",
                         value: `${data?.stats?.percentage}%`,
                         sub: "по всем курсам",
-                        color: data?.stats?.percentage >= 80 ? "text-green-500" : data?.stats?.percentage >= 60 ? "text-yellow-500" : "text-red-500"
+                        color: data?.stats?.percentage >= 80 ? "text-green-500" : data?.stats?.percentage >= 60 ? "text-yellow-500" : "text-red-500",
+                        class: "border border-gray-100 rounded-xl p-5 col-span-2 text-center"
                     },
-                    { label: "Пропущено занятий", value: data.stats.total - data.stats.present, sub: "за всё время" },
+                    { label: "Посещено занятий", value: data.stats?.present , sub: `из ${data.stats.total} всего`, class: "border border-gray-100 rounded-xl p-5" },
+                    { label: "Пропущено занятий", value: data.stats.total - data.stats.present, sub: "за всё время", class: "border border-gray-100 rounded-xl p-5" },
                 ].map((card, i) => (
                     <motion.div
                         key={card.label}
@@ -188,7 +189,7 @@ export default function StudentStatistic({ id }: StatProps) {
                         variants={cardVariants}
                         initial="hidden"
                         animate="visible"
-                        className="border border-gray-100 rounded-xl p-5"
+                        className={card.class}
                     >
                         <p className="text-xs text-gray-400 mb-1">{card.label}</p>
                         <p className={`text-3xl font-semibold ${card.color ?? 'text-gray-900'}`}>{card.value}</p>
