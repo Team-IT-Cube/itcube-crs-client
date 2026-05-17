@@ -6,6 +6,9 @@ import { useAuthStore } from "@/store/authStore";
 import LogoutButton from "@/components/features/auth/LogoutButton";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect, useState } from "react";
+import {Menu, MenuIcon} from "lucide-react";
+import MenuMobile from "@/components/features/MenuMobile";
+import * as React from "react";
 
 const navLinks = [
     { label: "Главная", href: "/" },
@@ -28,12 +31,14 @@ export default function Header() {
 
                 {/* Левая часть — лого и навигация */}
                 <div className="flex items-center gap-8">
-                    <Link href="/" className="flex items-center gap-2">
+                    <Link href="/" className="sm:flex hidden items-center gap-2">
                         <Image width={32} height={35} src="/logo.png" alt="IT-Cube" priority />
                         <span className="font-medium text-sm text-gray-900 hidden sm:block">IT-Cube Батайск</span>
                     </Link>
 
-                    <nav>
+                    {isClient ? <MenuMobile/> : <MenuIcon className="h-7 w-7" /> }
+
+                    <nav className="sm:block hidden">
                         <ul className="flex items-center gap-1">
                             {navLinks.map((link) => (
                                 <li key={link.href}>
@@ -60,7 +65,7 @@ export default function Header() {
                 </div>
 
                 {/* Правая часть — кнопки */}
-                <div className="flex items-center gap-2">
+                <div className="sm:flex hidden items-center gap-2">
                     {!isClient ? (
                         <>
                             <Skeleton className="h-8 w-16 rounded-lg" />
