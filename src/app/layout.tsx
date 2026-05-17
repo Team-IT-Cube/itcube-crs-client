@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import {Toaster} from "sonner";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import AlertCookieAccept from "@/components/features/AlertCookieAccept";
 
 const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
@@ -34,6 +35,7 @@ export default function RootLayout({
       className={cn("h-full", "antialiased", geistSans.variable, geistMono.variable, "font-sans", inter.variable)}
     >
       <body className="min-h-full flex flex-col">
+        <AlertCookieAccept />
         <Header />
         <div className="max-w-6xl mx-auto w-full mt-8">
           {children}
