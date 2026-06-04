@@ -1,8 +1,29 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Learning management system
 
-## Getting Started
+Learning Management system - система управлением контента позволяет
+записаться на интересующийся курс для учащихся, а также
+управлением системой записей, отметки посещаемости пользователя и 
+аналитика для учащихся. 
+Клиентское приложение работает с сервером.
 
-First, run the development server:
+![license](https://img.shields.io/badge/license-MIT-green)
+
+Этот [Next.js](https://nextjs.org) проект создан с помощью [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+
+## ✨ Возможности
+
+- Аунтентификация `features/auth`
+- Курсы `features/course`
+  - Запись (только ученик) 
+  - Записаться можно один раз
+- Заявки `features/dashboard`
+  - Просмотр своих заявок `student/StudentCourse`
+  - Обновить статус заявки (только учитель) `teacher/TeacherCourseStudents`
+- Отметить посещаемость ученика по заявке (только учитель) `teacher/AttendanceDialog`
+
+## 🚀 Быстрый старт
+
+Запустить сервер в режиме разработки:
 
 ```bash
 npm run dev
@@ -14,11 +35,34 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Открыть [http://localhost:3000](http://localhost:3000) в браузере.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Документация
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Подробная документация в папке `docs/`
+
+## 📖 Использование
+
+## ⚙️ Конфигурация
+
+Пример конфигурации из файла `.env.example`. Скопировать 
+и переменовать в `.env` 
+
+```bash
+NEXT_PUBLIC_API_URL=
+NODE_ENV=
+```
+
+## Сущности
+
+- Course - курс
+- Enrollment - заявка
+- Attendance - посещаемость
+- User - пользователь
+
+## 📄 Лицензия
+
+License [MIT](https://choosealicense.com/licenses/mit/)
 
 ## Learn More
 
