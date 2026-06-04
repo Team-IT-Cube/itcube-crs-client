@@ -13,6 +13,7 @@ export default function UserDashboard() {
 
     if(role === 'student') return <StudentDashboard />
     if(role === 'teacher') return <TeacherDashboard />
+    // if(role === 'admin') return <AdminDashboard />;
 
     return <DefaultDashboard />;
 }
