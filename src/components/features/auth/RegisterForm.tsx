@@ -30,9 +30,18 @@ export default function RegisterForm() {
         resolver: zodResolver(registerSchema),
     });
 
+    const translate: Record<string, string> = {
+        email: "Адрес электронной почты уже занят"
+    }
+
+    const responseServer: Record<string, string> = {
+        email: 'The email has already been taken.'
+    }
+
     async function onSubmit(data: RegisterData) {
         try {
             const response = await registerUser(data);
+
             setAuth(response.user, response.token);
             toast.success(`Добро пожаловать, ${response.user.name}!`);
             router.push("/profile");
@@ -42,9 +51,13 @@ export default function RegisterForm() {
                 if (errors) {
                     // 422 — ошибки полей от Laravel через setError
                     Object.entries(errors).forEach(([key, val]) => {
+                        const value = (val as string[])[0] === responseServer[key] 
+                            ? translate[key]
+                            : (val as string[])[0]
+                        
                         setError(key as keyof RegisterData, {
-                            message: (val as string[])[0],
-                        });
+                            message: value,
+                        }); 
                     });
                 } else {
                     toast.error(err.response?.data?.message || "Ошибка регистрации");

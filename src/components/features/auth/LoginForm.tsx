@@ -13,6 +13,7 @@ import { loginSchema } from "@/lib/validations";
 
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { AxiosError } from "axios";
 
 export default function LoginForm() {
     const router = useRouter();
@@ -56,17 +57,23 @@ export default function LoginForm() {
             setAuth(response.user, response.token);
             toast.success(`Добро пожаловать, ${response.user.name}!`);
             router.push("/profile");
-        } catch (err: any) {
-            if (err.errors) {
-                // 422 — ошибки полей
-                const errors: Record<string, string> = {};
-                Object.entries(err.errors).forEach(([key, val]) => {
-                    errors[key] = (val as string[])[0];
-                });
-                setFieldErrors(errors);
+        } catch (err) {
+            if (err instanceof AxiosError) {
+                const response = err.response?.data?.errors;
+                if (response) {
+                    // 422 — ошибки полей
+                    const errors: Record<string, string> = {};
+                    Object.entries(response).forEach(([key, val]) => {
+                        errors[key] = (val as string[])[0];
+                    });
+                    setFieldErrors(errors);
+                }
+                else {
+                     // 401 — общая ошибка
+                    setGlobalError(err.message || "Неверный email или пароль");
+                }
             } else {
-                // 401 — общая ошибка
-                setGlobalError(err.message || "Неверный email или пароль");
+                setGlobalError("Неизвестная ошибка.");
             }
         } finally {
             setLoading(false);
