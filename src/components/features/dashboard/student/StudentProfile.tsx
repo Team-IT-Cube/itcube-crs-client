@@ -26,8 +26,8 @@ export default function StudentProfile() {
                     <p className="text-sm text-gray-500">{user?.email}</p>
                 </div>
                 <span className={`ml-auto text-xs px-3 py-1 rounded-full border font-medium ${roleColor[user?.role ?? 'student']}`}>
-                                {roleLabel[user?.role ?? 'student']}
-                            </span>
+                    {roleLabel[user?.role ?? 'student']}
+                </span>
             </div>
 
             {/* Разделитель */}
