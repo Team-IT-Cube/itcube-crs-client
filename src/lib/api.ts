@@ -1,4 +1,4 @@
-import axios, {AxiosError} from "axios";
+import axios from "axios";
 
 import {ApiResponse} from "@/interfaces/api";
 import {AuthData, AuthUser, RegisterData} from "@/interfaces/auth";
@@ -14,33 +14,13 @@ const instance = axios.create({
 });
 
 export async function loginUser(data: AuthData): Promise<AuthUser> {
-    try {
-        const response = await instance.post('/auth/login', data)
-        return response.data
-    } catch (err) {
-        if (err instanceof AxiosError) {
-            throw {
-                message: err.response?.data?.message || 'Неизвестная ошибка',
-                errors: err.response?.data?.errors,
-            }
-        }
-        throw new Error('Неизвестная ошибка')
-    }
+    const response = await instance.post('/auth/login', data)
+    return response.data
 }
 
 export async function registerUser(data: RegisterData): Promise<AuthUser> {
-    try {
-        const response = await instance.post('/auth/register', data)
-        return response.data
-    } catch (err) {
-        if (err instanceof AxiosError) {
-            throw {
-                message: err.response?.data?.message || 'Неизвестная ошибка',
-                errors: err.response?.data?.errors,
-            }
-        }
-        throw new Error('Неизвестная ошибка')
-    }
+    const response = await instance.post('/auth/register', data)
+    return response.data
 }
 
 export async function serverFetch<T>(
