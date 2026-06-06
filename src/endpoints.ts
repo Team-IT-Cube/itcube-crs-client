@@ -11,4 +11,5 @@ export const endpoint = {
     myEnrollments: `${base_url}/enrollments/my`,
     enrollments: `${base_url}/enrollments`,
     attendance: `${base_url}/attendance`,
+    verifyCode: `${base_url}/auth/register/verify`
 };
