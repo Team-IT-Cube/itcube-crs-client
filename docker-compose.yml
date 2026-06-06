@@ -1,14 +1,9 @@
 services:
   nextjs:
+    env_file:
+      - .env
     build:
       context: .
       dockerfile: Dockerfile
     expose:
       - "3000"
-    networks:
-      - app-network
-
-networks:
-  app-network:
-    external: true
-    name: itcube-crs-server_app-network
