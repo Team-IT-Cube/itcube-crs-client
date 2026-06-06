@@ -33,7 +33,7 @@ export default function AlertCookieAccept() {
                     <Alert>
                         <AlertTitle className="flex items-center gap-2 mb-3">
                             <InfoIcon />
-                            Мы используем вкусные куки 😋🍪
+                            Для работы сайта используются файлы cookie 🍪
                         </AlertTitle>
 
                         <Button onClick={handleClick} className="w-full">
