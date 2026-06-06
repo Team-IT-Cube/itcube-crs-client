@@ -1,9 +1,9 @@
-import RegisterForm from "@/components/features/auth/RegisterForm"
+import Registration from "@/components/features/auth/Registration";
 
-export default function LoginPage() {
+export default function RegisterPage() {
     return (
         <main>
-            <RegisterForm />
+            <Registration />
         </main>
     )
 }
