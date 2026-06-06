@@ -18,7 +18,12 @@ export async function loginUser(data: AuthData): Promise<AuthUser> {
     return response.data
 }
 
-export async function registerUser(data: RegisterData): Promise<AuthUser> {
+interface RegisterUserData {
+    message: string,
+    email: string,
+}
+
+export async function registerUser(data: RegisterData): Promise<RegisterUserData> {
     const response = await instance.post('/auth/register', data)
     return response.data
 }

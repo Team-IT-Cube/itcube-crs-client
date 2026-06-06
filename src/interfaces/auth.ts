@@ -12,6 +12,10 @@ export interface RegisterData {
     password_confirmation: string
 }
 
+export interface VerifyCode {
+    code: string,
+}
+
 export interface AuthUser {
     user: User
     token: string

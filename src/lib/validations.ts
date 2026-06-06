@@ -15,3 +15,9 @@ export const registerSchema = z.object({
     message: "Пароли не совпадают",
     path: ["password_confirmation"],
 })
+
+export const verifyCodeSchema = z.object({
+    code: z.string()
+        .min(6, "Должно быть не менее 6 цифр")
+        .max(6, "Должно быть не более 6 цифр")
+})
