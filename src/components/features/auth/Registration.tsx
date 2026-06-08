@@ -34,7 +34,7 @@ interface VerifyCodeFormProps {
 
 export default function Registration() {
     const [step, setStep] = useState<number>(1);
-    const [email, setEmail] = useState<string>("user@mail.com");
+    const [email, setEmail] = useState<string>("");
 
     return (
         step === 1 ? 
